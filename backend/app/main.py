@@ -25,3 +25,13 @@ app.include_router(auth.router)
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+from app.routers import auth, projects, queues
+
+app.include_router(auth.router)
+app.include_router(projects.router)
+app.include_router(queues.router)
+
+from app.routers import auth, projects, queues, jobs
+
+app.include_router(jobs.router)
