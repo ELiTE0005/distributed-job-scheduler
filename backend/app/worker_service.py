@@ -162,7 +162,7 @@ class WorkerService:
             else:
                 raise RuntimeError("Simulated task failure")
         except Exception as e:
-            self._mark_failure(db, execution, job_id)
+            self._mark_failure(db, execution, job_id, reason=str(e))
             self._log(db, execution.id, "ERROR", f"Job {job_id} failed: {e}")
         finally:
             db.close()
@@ -174,14 +174,13 @@ class WorkerService:
         db.query(Job).filter(Job.id == job_id).update({"status": "completed", "updated_at": datetime.utcnow()})
         db.commit()
 
-    def _mark_failure(self, db: Session, execution: JobExecution, job_id: str):
-        # Retry-policy application (fixed/linear/exponential, max attempts,
-        # dead-letter routing) is implemented in Milestone 7. For now this
-        # just marks the job 'failed' so Milestone 7's logic can act on it.
+    def _mark_failure(self, db: Session, execution: JobExecution, job_id: str, reason: str):
         execution.status = "failed"
         execution.finished_at = datetime.utcnow()
-        db.query(Job).filter(Job.id == job_id).update({"status": "failed", "updated_at": datetime.utcnow()})
         db.commit()
+
+        from app.retry_logic import handle_job_failure
+        handle_job_failure(db, job_id, failure_reason=reason)
 
     def _set_worker_status(self, status: str):
         db = SessionLocal()
