@@ -35,3 +35,6 @@ app.include_router(queues.router)
 from app.routers import auth, projects, queues, jobs
 
 app.include_router(jobs.router)
+
+from app.routers import auth, projects, queues, jobs, dashboard
+app.include_router(dashboard.router)

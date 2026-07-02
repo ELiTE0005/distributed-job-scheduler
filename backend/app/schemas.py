@@ -132,3 +132,37 @@ class PaginatedJobs(BaseModel):
     total: int
     page: int
     page_size: int
+
+
+# ---------- Dashboard ----------
+
+class JobStatusCounts(BaseModel):
+    pending: int = 0
+    running: int = 0
+    completed: int = 0
+    failed: int = 0
+    dead_letter: int = 0
+
+
+class QueueSummary(BaseModel):
+    id: str
+    name: str
+    is_paused: bool
+    max_concurrency: int
+    pending_jobs: int
+    running_jobs: int
+
+
+class WorkerSummary(BaseModel):
+    id: str
+    hostname: str
+    status: str
+    last_seen_at: datetime
+
+
+class DashboardStats(BaseModel):
+    job_status_counts: JobStatusCounts
+    total_jobs: int
+    queues: List[QueueSummary]
+    workers: List[WorkerSummary]
+    dead_letter_count: int
