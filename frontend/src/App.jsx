@@ -6,6 +6,11 @@ import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import QueueDetail from "./pages/QueueDetail";
 import Workers from "./pages/Workers";
+import JobLogs from "./pages/JobLogs";
+import DeadLetter from "./pages/DeadLetter";
+
+
+
 
 function ProtectedRoute({ children }) {
   const { token } = useAuth();
@@ -23,6 +28,8 @@ export default function App() {
           <Route path="/projects/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
           <Route path="/queues/:queueId" element={<ProtectedRoute><QueueDetail /></ProtectedRoute>} />
           <Route path="/workers" element={<ProtectedRoute><Workers /></ProtectedRoute>} />
+          <Route path="/jobs/:jobId" element={<ProtectedRoute><JobLogs /></ProtectedRoute>} />
+          <Route path="/dead-letter" element={<ProtectedRoute><DeadLetter /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

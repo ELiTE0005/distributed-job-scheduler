@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import client from "../api/client";
 import Sidebar from "../components/Sidebar";
 import StatusDot from "../components/StatusDot";
+
 
 const POLL_MS = 5000;
 
@@ -21,7 +22,9 @@ export default function QueueDetail() {
 
   async function fetchJobs() {
     try {
-      const res = await client.get(`/projects/${projectId}/queues/${queueId}/jobs`);
+      const res = await client.get(
+        `/projects/${projectId}/queues/${queueId}/jobs`
+      );
       setJobs(res.data.items);
     } catch {
       setError("Could not load jobs.");
@@ -30,19 +33,27 @@ export default function QueueDetail() {
 
   useEffect(() => {
     fetchJobs();
+
     const interval = setInterval(fetchJobs, POLL_MS);
+
     return () => clearInterval(interval);
   }, [queueId, projectId]);
 
   async function handleCreate(e) {
     e.preventDefault();
+
     try {
       const parsed = JSON.parse(payload);
-      await client.post(`/projects/${projectId}/queues/${queueId}/jobs`, {
-        job_type: jobType,
-        payload: parsed,
-        priority: 0,
-      });
+
+      await client.post(
+        `/projects/${projectId}/queues/${queueId}/jobs`,
+        {
+          job_type: jobType,
+          payload: parsed,
+          priority: 0,
+        }
+      );
+
       fetchJobs();
     } catch {
       setError("Invalid JSON payload or request failed.");
@@ -52,6 +63,7 @@ export default function QueueDetail() {
   return (
     <div className="flex">
       <Sidebar />
+
       <main className="flex-1 p-8">
         <h2 className="text-lg font-semibold mb-6">Jobs</h2>
 
@@ -64,37 +76,54 @@ export default function QueueDetail() {
             <option value="immediate">immediate</option>
             <option value="delayed">delayed</option>
           </select>
+
           <input
             value={payload}
             onChange={(e) => setPayload(e.target.value)}
-            className="px-3 py-2 rounded bg-surface border border-border text-sm w-72 font-mono focus:outline-none focus:border-teal"
+            className="w-72 px-3 py-2 rounded bg-surface border border-border text-sm font-mono focus:outline-none focus:border-teal"
           />
+
           <button className="px-4 py-2 rounded bg-teal text-graphite text-sm font-medium">
             Submit Job
           </button>
         </form>
 
-        {error && <p className="text-danger text-sm mb-4">{error}</p>}
+        {error && (
+          <p className="text-danger text-sm mb-4">
+            {error}
+          </p>
+        )}
 
         <div className="border border-border rounded-lg bg-surface">
           {jobs.length === 0 ? (
-            <p className="p-4 text-sm text-muted">No jobs yet.</p>
+            <p className="p-4 text-sm text-muted">
+              No jobs yet.
+            </p>
           ) : (
             jobs.map((j) => (
-              <div
+              <Link
                 key={j.id}
-                className="flex justify-between items-center px-4 py-3 border-b border-border last:border-0 text-sm"
+                to={`/jobs/${j.id}?project_id=${projectId}&queue_id=${queueId}`}
+                className="flex justify-between items-center px-4 py-3 border-b border-border last:border-0 text-sm hover:bg-graphite"
               >
                 <div className="flex items-center gap-3">
                   <StatusDot status={j.status} />
-                  <span className="font-mono text-xs text-muted">{j.id.slice(0, 8)}</span>
+
+                  <span className="font-mono text-xs text-muted">
+                    {j.id.slice(0, 8)}
+                  </span>
+
                   <span>{j.job_type}</span>
                 </div>
+
                 <div className="flex items-center gap-4 text-xs text-muted">
                   <span>attempt {j.attempt_count}</span>
-                  <span className="font-mono">{j.status}</span>
+
+                  <span className="font-mono">
+                    {j.status}
+                  </span>
                 </div>
-              </div>
+              </Link>
             ))
           )}
         </div>

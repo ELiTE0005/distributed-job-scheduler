@@ -1,10 +1,14 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
+
+
+
 const links = [
   { to: "/", label: "Dashboard" },
   { to: "/projects", label: "Projects" },
   { to: "/workers", label: "Workers" },
+  { to: "/dead-letter", label: "Dead Letter Queue" },
 ];
 
 export default function Sidebar() {
